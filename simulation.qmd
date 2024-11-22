@@ -1,0 +1,124 @@
+---
+title: "Simulation: Craps Simulation"
+format: html
+---
+
+There need to answer the following three questions:
+
+1.Which probability do you want to estimate?
+2.What is the simulation result (in numbers and visuals)?
+3.What is the simulation variability?
+
+Probability to Estimate
+Estimate the probability of winning a single craps game. Specifically, we want to determine:
+
+What is the likelihood of winning at craps?
+
+
+Simulation Result
+Simulate 1,000 games to estimate this probability and visualize the outcomes.
+
+```{r}
+library(ggplot2)
+
+set.seed(123)
+
+simulate_craps_game <- function() {
+  # Roll the dice 
+  initial_roll <- sum(sample(1:6, 2, replace = TRUE))
+  
+  # Immediate win or loss
+  if (initial_roll == 7 || initial_roll == 11) {
+    return(TRUE)  
+  } else if (initial_roll == 2 || initial_roll == 3 || initial_roll == 12) {
+    return(FALSE) 
+  }
+  
+  # Continue rolling
+  point <- initial_roll
+  repeat {
+    new_roll <- sum(sample(1:6, 2, replace = TRUE))
+    if (new_roll == point) {
+      return(TRUE)  
+    } else if (new_roll == 7) {
+      return(FALSE) 
+    }
+  }
+}
+
+summarize_craps_game <- function(results) {
+  total_games <- length(results)
+  total_wins <- sum(results)
+  win_rate <- total_wins / total_games
+  
+  data.frame(
+    Total_Games = total_games,
+    Wins = total_wins,
+    Losses = total_games - total_wins,
+    Win_Rate = win_rate
+  )
+}
+
+
+run_craps_simulation <- function(N) {
+  results <- replicate(N, simulate_craps_game())
+  summarize_craps_game(results)
+}
+
+# Run simulation
+num_games <- 1000
+simulation_results <- replicate(num_games, simulate_craps_game())
+
+
+summary <- summarize_craps_game(simulation_results)
+print(summary)
+
+
+```
+
+Visualization of Wins and Losses
+
+```{r}
+
+win_loss_df <- data.frame(
+  Outcome = factor(simulation_results, levels = c(TRUE, FALSE), labels = c("Win", "Loss"))
+)
+
+# Plot outcomes
+ggplot(win_loss_df, aes(x = Outcome)) +
+  geom_bar(fill = "pink") +
+  labs(title = "Craps Game Simulation Results",
+       x = "Outcome",
+       y = "Count") +
+  theme_minimal()
+
+```
+
+Simulation Variability
+Assess variability by repeating the simulation multiple times and examining the distribution of win rates.
+
+```{r}
+# Repeat the simulation 50 times and calculate win rates
+set.seed(123)
+num_repeats <- 50
+win_rates <- replicate(num_repeats, {
+  results <- replicate(num_games, simulate_craps_game())
+  sum(results) / num_games
+})
+
+print(summary(win_rates))
+
+```
+
+Variability Visualization
+
+```{r}
+# Plot distribution 
+ggplot(data.frame(Win_Rate = win_rates), aes(x = Win_Rate)) +
+  geom_histogram(binwidth = 0.01, fill = "lightgreen", color = "black") +
+  labs(title = "Simulation Variability: Distribution of Win Rates",
+       x = "Win Rate",
+       y = "Frequency") +
+  theme_minimal()
+
+```
