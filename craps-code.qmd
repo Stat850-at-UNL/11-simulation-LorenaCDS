@@ -22,7 +22,6 @@ roll_dice <- function() {
   # Output: Integer from 2 to 12 (sum of two dice)
   sum(sample(1:6, 2, replace = TRUE))
 }
-
 ```
 
 ```{r}
