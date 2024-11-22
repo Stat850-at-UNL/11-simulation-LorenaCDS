@@ -19,11 +19,10 @@ Make sure this document compiles before you submit your answers.
 ```{r}
 roll_dice <- function() {
   # Input: None
-  # Output: an integer from 1:12
-  # Description: Generate 2 random integers from 1 to 6 and sum them
-  
-  sample(1:6, 2, replace = T) %>% sum()
+  # Output: Integer from 2 to 12 (sum of two dice)
+  sum(sample(1:6, 2, replace = TRUE))
 }
+
 ```
 
 ```{r}
@@ -37,10 +36,27 @@ roll_dice()
 ## `simulate_craps_game`
 ```{r}
 simulate_craps_game <- function() {
-  # Input: 
-  # Output: 
-  # Description:
+  # First roll
+  point <- roll_dice()
+  
+  # Check for win/loss
+  if (point == 7 || point == 11) {
+    return(TRUE)
+  } else if (point == 2 || point == 3 || point == 12) {
+    return(FALSE)
+  } else {
+    #  Keep rolling until point or 7 is rolled
+    while (TRUE) {
+      roll <- roll_dice()
+      if (roll == point) {
+        return(TRUE)  
+      } else if (roll == 7) {
+        return(FALSE) 
+      }
+    }
+  }
 }
+
 ```
 
 ```{r}
@@ -49,24 +65,44 @@ simulate_craps_game()
 
 ## `summarize_craps_game`
 ```{r}
-summarize_craps_game <- function() {
-  # Input: 
-  # Output: 
-  # Description:
+# Load the necessary library
+library(dplyr)
+
+# Updated summarize_craps_game function
+summarize_craps_game <- function(result) {
+  total_games <- length(result)
+  total_wins <- sum(result)
+  win_rate <- total_wins / total_games
+  
+  data.frame(
+    Total_Games = total_games,
+    Wins = total_wins,
+    Losses = total_games - total_wins,
+    Win_Rate = win_rate
+  )
 }
+
 ```
 
 ```{r}
+
 simulate_craps_game() %>% summarize_craps_game()
 ```
 
 ## `run_craps_simulation`
 ```{r}
 run_craps_simulation <- function(N) {
-  # Input: an integer N which determines the number of games to simulate
-  # Output: 
-  # Description:
+  # Input: Number of games to simulate
+  # Output: Summary of game results
+  
+  results <- replicate(N, simulate_craps_game())
+  summarize_craps_game(results)
 }
+
+
+set.seed(123)
+
+
 ```
 
 ```{r}
